@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.TextbookMapper">
+
+    <sql id="Base_Column_List">
+        textbook_id,book_cover,ISBN,textbook_name,press,author,version,order_status
+    </sql>
+
+    <select id="selectAll" resultType="com.example.entity.Textbook">
+        select
+        <include refid="Base_Column_List" />,t.category_id, tc.category_name
+        from textbook t
+        left join textbook_category tc on tc.category_id = t.category_id
+        <where>
+            <if test="textbookId != null"> and textbook_id = #{textbookId}</if>
+            <if test="textbookName != null"> and textbook_name like concat('%', #{textbookName}, '%')</if>
+            <if test="categoryName != null"> and tc.category_name= #{categoryName}</if>
+            <if test="orderStatus != null"> and order_status= #{orderStatus}</if>
+        </where>
+        order by textbook_id asc
+    </select>
+
+
+
+</mapper>

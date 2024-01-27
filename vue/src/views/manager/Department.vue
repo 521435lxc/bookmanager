@@ -113,17 +113,19 @@
 
     <el-dialog title="" name="信息" :visible.sync="fromVisible2" width="40%" :close-on-click-modal="false" destroy-on-close>
       <el-form :model="departmentForm" :rules="departmentRules" ref="departmentFormRef" label-width="100px" style="padding-right: 50px;">
+
         <el-form-item label="部门名称" prop="departmentName">
           <el-input v-model="departmentForm.departmentName" placeholder="部门名称" ></el-input>
         </el-form-item>
+
         <el-form-item label="系主任" prop="departmentManagerName">
-          <el-select v-model="departmentForm.departmentManagerName" placeholder="请选择角色" style="width: 100%">
+          <el-select clearable filterable v-model="departmentForm.departmentManagerName" placeholder="请选择角色" style="width: 100%">
             <!--   key唯一表示 label展示值 value 传递的实际值-->
             <el-option
                 v-for="item in userData"
-                :key="item.realName"
+                :key="item.userId"
                 :label="item.realName"
-                :value="item.userId"
+                :value="item.realName"
             >
             </el-option>
           </el-select>
@@ -265,6 +267,8 @@ export default {
     departmentAdd() {
       this.departmentForm = {}  // 新增数据的时候清空数据
       this.fromVisible2 = true   // 打开弹窗
+      this.queryTeacher() // 重新加载教师的数据
+      // this.loadDepartmentPage(1)
     },
     facultyEdit(row) {
       this.facultyForm = JSON.parse(JSON.stringify(row))
@@ -273,17 +277,9 @@ export default {
     departmentEdit(row) {
       this.departmentForm = JSON.parse(JSON.stringify(row))
       this.fromVisible2 = true;
+      this.queryTeacher()
     },
-    order(row) {
-      // 发起征订
-      if (row.orderStatus !== '1'){
-        this.$message.error("暂不可征订")
-      }else {
-        this.$message.success("可以征订")
-      }
 
-
-    },
     saveFaculty() {   // 保存按钮触发的逻辑  它会触发新增或者更新
       this.$refs['facultyFormRef'].validate((valid) => {
         if (valid) {

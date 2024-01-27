@@ -18,7 +18,7 @@ const routes = [
     children: [
       { path: '403', name: 'NoAuth', meta: { name: '无权限' }, component: () => import('../views/manager/403') },
       { path: 'home', name: 'Home', meta: { name: '系统首页' }, component: () => import('../views/manager/Home') },
-      { path: 'admin', name: 'Admin', meta: { name: '用户信息' }, component: () => import('../views/manager/Admin') },
+      // { path: 'admin', name: 'Admin', meta: { name: '用户信息' }, component: () => import('../views/manager/Admin') },
       { path: 'adminPerson', name: 'AdminPerson', meta: { name: '个人信息' }, component: () => import('../views/manager/PersonInfo') },
       { path: 'password', name: 'Password', meta: { name: '修改密码' }, component: () => import('../views/manager/Password') },
       { path: 'userList', name: 'UserList', meta: { name: '用户列表' }, component: () => import('../views/manager/User') },

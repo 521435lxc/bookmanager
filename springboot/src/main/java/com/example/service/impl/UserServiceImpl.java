@@ -12,10 +12,7 @@ import com.example.common.Constants;
 import com.example.common.Result;
 import com.example.common.enums.ResultCodeEnum;
 import com.example.common.enums.RoleEnum;
-import com.example.entity.Account;
-import com.example.entity.Department;
-import com.example.entity.Role;
-import com.example.entity.User;
+import com.example.entity.*;
 import com.example.exception.CustomException;
 import com.example.mapper.DepartmentMapper;
 import com.example.mapper.RoleMapper;
@@ -25,14 +22,18 @@ import com.example.service.UserService;
 import com.example.service.ValidationService;
 import com.example.utils.BeanCopyUtils;
 import com.example.utils.TokenUtils;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-import com.example.entity.Validation;
+
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /*
  功能 : 
@@ -44,6 +45,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private UserService userService;
     @Resource
     private RoleMapper roleMapper;
     @Resource
@@ -250,5 +253,95 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new CustomException(ResultCodeEnum.VALIDATION_ERROR);
         }
         return account;
+    }
+
+    // 查询教师的方法
+    @Override
+    public Result queryAllTeacher() {
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getRoleId,Constants.TEACHER);
+        List<User> teacherList = userMapper.selectList(queryWrapper);
+
+        return Result.success(teacherList);
+    }
+
+    // 查询除管理员以外的用户信息
+    @Override
+    public Result selectAllUser() {
+        List<User> list = userService.list();
+
+        return Result.success(list);
+    }
+
+    // 分页查询用户
+    @Override
+    public PageInfo<User> selectPage(User user, Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<User> userList = userMapper.selectAll(user);
+        // 过滤掉管理员
+        List<User> users = userList.stream().filter(
+                u -> !u.getRoleId().equals(Constants.ADMIN)
+        ).collect(Collectors.toList());
+
+        return PageInfo.of(users);
+    }
+
+
+    // 设置用户的状态
+    @Override
+    public Result setUserStatus(User user) {
+        int i = userMapper.updateById(user);
+        if (i > 0){
+            return Result.success();
+        }
+        throw new CustomException(ResultCodeEnum.SYSTEM_ERROR);
+    }
+
+    // 添加用户
+    @Override
+    public Result addUser(User user) {
+        // 查一查用户名有没有重复的
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getUsername,user.getUsername());
+        User dbUser = userMapper.selectOne(queryWrapper);
+        if (dbUser !=  null){
+            //说明存在相同用户
+            throw new CustomException(ResultCodeEnum.USER_EXIST_ERROR);
+        }
+        // 设置用户状态
+        user.setEnableStatus(Constants.AVAILABLE);
+        // 设置注册时间
+        user.setRegistrationDate(new Date());
+        // 添加
+        int insert = userMapper.insert(user);
+        if (insert > 0){
+            return Result.success();
+        }
+        return Result.error("500","怎么回事？");
+    }
+
+
+    @Override
+    public Result updateUser(User user) {
+//        直接修改这个用户传来的信息
+        int i = userMapper.updateById(user);
+        if (i > 0) {
+            return Result.success();
+        }
+        throw new CustomException(ResultCodeEnum.SYSTEM_ERROR);
+    }
+
+    @Override
+    public Result updatePassword(Account account) {
+        // 修改密码 把新密码赋值给密码字段
+        // 查到当前账户的用户
+        User user = userService.selectById(account.getUserId());
+        user.setPassword(account.getNewPassword());
+        // 更改这个用户
+        int i = userMapper.updateById(user);
+        if (i > 0){
+            return Result.success();
+        }
+        throw new CustomException(ResultCodeEnum.SYSTEM_ERROR);
     }
 }

@@ -18,5 +18,9 @@ public interface FacultyService extends IService<Faculty> {
     Result selectAllFacutlty();
 
     PageInfo<Faculty> selectPage(Faculty faculty, Integer pageNum, Integer pageSize);
+
+    Result updateFaculty(Faculty faculty);
+
+    Result addFaculty(Faculty faculty);
 }
 

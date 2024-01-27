@@ -53,5 +53,12 @@ public class DepartmentController {
     }
 
     // 编辑系的信息
+    @PutMapping("/updateDepartment")
+
+    public Result updateDepartment(@RequestBody Department department){
+        return departmentService.updateDepartment(department);
+
+    }
+
 }
 

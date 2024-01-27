@@ -36,6 +36,17 @@ public class FacultyController{
         PageInfo<Faculty> page = facultyService.selectPage(faculty, pageNum, pageSize);
         return Result.success(page);
     }
+    // 增加院的信息
+    @PostMapping("/addFaculty")
+    public Result addFaculty(@RequestBody Faculty faculty){
+        return facultyService.addFaculty(faculty);
+    }
 
+
+    // 编辑院的信息
+    @PutMapping("/updateFaculty")
+    public Result updateFaculty(@RequestBody Faculty faculty){
+        return facultyService.updateFaculty(faculty);
+    }
 }
 

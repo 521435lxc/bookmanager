@@ -19,17 +19,17 @@
         <el-form-item label="用户名" prop="username">
           <el-input v-model="user.username" placeholder="用户名" disabled></el-input>
         </el-form-item>
-        <el-form-item label="姓名" prop="name">
-          <el-input v-model="user.name" placeholder="姓名"></el-input>
+        <el-form-item label="姓名" prop="realName">
+          <el-input v-model="user.realName" placeholder="姓名"></el-input>
         </el-form-item>
-        <el-form-item label="电话" prop="phone">
-          <el-input v-model="user.phone" placeholder="电话"></el-input>
+        <el-form-item label="电话" prop="phoneNumber">
+          <el-input v-model="user.phoneNumber" placeholder="电话"></el-input>
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="user.email" placeholder="邮箱"></el-input>
         </el-form-item>
         <div style="text-align: center; margin-bottom: 20px">
-          <el-button type="primary" @click="update">保 存</el-button>
+          <el-button type="primary" @click="updateUser">保 存</el-button>
         </div>
       </el-form>
     </el-card>
@@ -86,9 +86,25 @@ export default {
 
   },
   methods: {
+    updateUser() {
+      // 保存当前的用户信息到数据库
+      this.$request.put("/user/update", this.user).then(res => {
+        if (res.code === '200') {
+          // 成功更新
+          this.$message.success('保存成功')
+          // 更新浏览器缓存里的用户信息
+          localStorage.setItem('xm-user', JSON.stringify(this.user))
+
+          // 触发父级的数据更新
+          // this.$emit('update:user')
+        } else {
+          this.$message.error(res.msg)
+        }
+      })
+    },
     update() {
       // 保存当前的用户信息到数据库
-      this.$request.put('/admin/update', this.user).then(res => {
+      this.$request.put("/user/update", this.user).then(res => {
         if (res.code === '200') {
           // 成功更新
           this.$message.success('保存成功')
@@ -113,7 +129,7 @@ export default {
     save() {
       this.$refs.formRef.validate((valid) => {
         if (valid) {
-          this.$request.put('/updatePassword', this.user).then(res => {
+          this.$request.put('/user/updatePassword', this.user).then(res => {
             if (res.code === '200') {
               // 成功更新
               this.$message.success('修改密码成功')

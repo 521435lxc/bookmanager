@@ -20,5 +20,7 @@ public interface DepartmentService extends IService<Department> {
     Result addDepartment(Department department);
 
     Result deleteDepartment(Integer departmentId);
+
+    Result updateDepartment(Department department);
 }
 

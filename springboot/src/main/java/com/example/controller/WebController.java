@@ -76,13 +76,13 @@ public class WebController {
     }
 
     // 修改密码
-    @PutMapping("/updatePassword")
-    public Result updatePassword(@RequestBody Account account) {
-        if (StrUtil.isBlank(account.getUsername()) || StrUtil.isBlank(account.getPassword())) {
-            return Result.error(ResultCodeEnum.PARAM_LOST_ERROR);
-        }
-
-        return Result.success();
-    }
+//    @PutMapping("/updatePassword")
+//    public Result updatePassword(@RequestBody Account account) {
+//        if (StrUtil.isBlank(account.getUsername()) || StrUtil.isBlank(account.getPassword())) {
+//            return Result.error(ResultCodeEnum.PARAM_LOST_ERROR);
+//        }
+//
+//        return Result.success();
+//    }
 
 }

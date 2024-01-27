@@ -27,9 +27,14 @@ public class Account {
     // 真实姓名
     private String realName;
 
+    //电话
+    private String phoneNumber;
+
     // 为了防止系主任
     private String departmentId;
     private String departmentName;
+
+    private String newPassword;
 
     // 邮箱登录需要用到的
     private String email;

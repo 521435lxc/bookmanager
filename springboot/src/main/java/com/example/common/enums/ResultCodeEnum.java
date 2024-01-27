@@ -19,7 +19,8 @@ public enum ResultCodeEnum {
     CODE_EXIST("5008", "验证码已发送，请勿重新发送"),
     VALIDATION_ERROR("5009", "验证码输入有误"),
     TEXTBOOK_EXIST("5010", "教材已存在"),
-    DEPARTMENT_EXIST("5007", "该系已存在"),
+    DEPARTMENT_EXIST("5011", "该系已存在"),
+    FACULTY_EXIST("5012", "该院已存在"),
     ;
 
     public String code;

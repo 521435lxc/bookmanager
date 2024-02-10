@@ -12,12 +12,14 @@
     <div class="operation">
 
       <el-button style="margin-left: 10px" v-if="user.roleName ==='ADMIN' " type="primary" plain
-                 @click="handleAdd">新增用户</el-button>
-      <el-switch style="margin-left: 10px"
-                 v-model="available"
-                 active-text="只看可用"
-                 @change="loadOrderStatus">
-      </el-switch>
+                 size="default" @click="handleAdd">新增用户</el-button>
+      <el-button style="height: 39.5px;" size="mini">
+        <el-switch style="margin-left: 10px; font-size: 100px; rgb(17, 169, 131))"
+                   v-model="available"
+                   active-text="可用"
+                   @change="loadOrderStatus">
+       </el-switch>
+      </el-button>
     </div>
 
     <div class="table">
@@ -138,7 +140,7 @@ export default {
 
       queryCondition: {
         username:null ,
-        orderStatus: null
+        enableStatus: null
       },
 
       textbookData: [], // 查询到的所有信息都存在
@@ -168,7 +170,7 @@ export default {
           pageNum: this.pageNum,
           pageSize: this.pageSize,
           username: this.queryCondition.username,
-
+          enableStatus: this.queryCondition.enableStatus
         },
       }).then(res => {
         this.userData = res.data?.list
@@ -176,14 +178,14 @@ export default {
       })
     },
 
-    // 征订按钮的可用与不可用
+    // 用户按钮的可用与不可用
     loadOrderStatus() {
       if(this.available === true){
-        this.queryCondition.orderStatus = '1'
+        this.queryCondition.enableStatus = '1'
         this.load(1)
       }
       else {
-        this.queryCondition.orderStatus = null
+        this.queryCondition.enableStatus = null
         this.load(1)
       }
     },

@@ -64,10 +64,10 @@
               <i class="el-icon-s-check"></i>
               <span>审批信息</span>
             </template>
-            <el-menu-item v-if=" user.roleName ==='MANAGER' " index="/applicationList">
+            <el-menu-item v-if=" user.roleName ==='MANAGER' || user.roleName ==='DEANSOFFICE' " index="/applicationList">
               申请列表
             </el-menu-item>
-            <el-menu-item index="/applicationPending">
+            <el-menu-item v-if="user.roleName ==='MANAGER'|| user.roleName ==='TEACHER' " index="/applicationPending">
               申请待办
             </el-menu-item>
             <el-menu-item index="/applicationProcessed">

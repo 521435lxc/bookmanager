@@ -15,7 +15,7 @@
       <el-button v-if="user.roleName ==='ADMIN' " type="danger" plain @click="delBatch">批量删除</el-button>
       <el-button v-if="user.roleName ==='ADMIN' " type="success" plain @click="eport">导入书单</el-button>
 
-      <el-button>
+      <el-button size="mini">
         <el-switch style="margin-left: 10px"
                    v-model="available"
                    active-text="可征订"
@@ -127,6 +127,7 @@
           <el-button type="primary" @click="save">保 存</el-button>
         </div>
       </el-form>
+
     </el-dialog>
 
     <el-dialog title="征订单" name="征订" :visible.sync="orderVisible" width="40%" :close-on-click-modal="false" destroy-on-close>
@@ -312,8 +313,6 @@ export default {
         this.orderForm.isbn = row.isbn
         this.orderForm.bookCover = row.bookCover
       }
-
-
     },
     save() {   // 保存按钮触发的逻辑  它会触发新增或者更新
       this.$refs['formRef'].validate((valid) => {

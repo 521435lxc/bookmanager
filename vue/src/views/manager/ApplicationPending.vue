@@ -35,18 +35,21 @@
         <el-table-column prop="departmentName" label="使用部门" align="center"></el-table-column>
         <el-table-column prop="applicationTime" label="申请时间" align="center"></el-table-column>
         <el-table-column prop="realName" label="申请人" align="center"></el-table-column>
+        <el-table-column prop="applicationIllustration" label="申请说明" align="center"></el-table-column>
         <el-table-column prop="applicationStatus" label="审核状态" align="center">
-          <template v-slot="{ row }">
-            <span v-if="row.applicationStatus === '1'">未审批</span>
-            <span v-else-if="row.applicationStatus === '2'" >待教务处审批</span>
-            <span v-else-if="row.applicationStatus === '3'" >已通过</span>
-            <span v-else>未通过</span>
+          <template  v-slot="{ row }">
+            <span v-show="row.applicationStatus === '1' || row.applicationStatus === '2'">待处理</span>
+<!--            <span v-else-if="row.applicationStatus === '2'" >待教务处审批</span>-->
+<!--            <span v-else-if="row.applicationStatus === '3'" >已通过</span>-->
+<!--            <span v-else>未通过</span>-->
           </template>
+
         </el-table-column>
 
         <el-table-column width="180" label="操作" align="center">
-          <template v-slot="{ row }">
-           <el-button v-if="row.cancelStatus === '1'" type="primary" plain="true" size="small" @click="cancelOrder(scope.row)" >取消申请</el-button>
+          <template v-slot="scope">
+           <el-button v-if="scope.row.cancelStatus === '1'" type="primary" plain="true" size="small"
+                      @click="cancelOrder(scope.row)" >取消申请</el-button>
            <span v-else>已取消</span>
           </template>
         </el-table-column>
@@ -72,6 +75,7 @@
 </template>
 
 <script>
+
 export default {
   name: "ApplicationPending",
   data() {
@@ -90,8 +94,8 @@ export default {
     }
   },
   created() {
-    // this.load(1)
-    // this.loadOrderForm()
+    this.load(1)
+    this.loadOrderForm()
   },
   methods: {
     loadOrderForm() {
@@ -111,45 +115,42 @@ export default {
           pageNum: this.pageNum,
           pageSize: this.pageSize,
           textbookName : this.textbookName,
-          cancelStatus : this.cancelStatus
+          cancelStatus : this.cancelStatus,
+          applicantId: this.user.userId
         },
       }).then(res => {
         this.tableData = res.data?.list
         this.total = res.data?.total
+        // 过滤一下tableData // 不是通过或者不通过的  统一弄成未处理
+        this.tableData = this.tableData.filter(item => item.applicationStatus === '1'
+            || item.applicationStatus === '2' )
       })
+    },
+    loadOrderStatus(){
+      if (this.noCancel === true){
+        this.cancelStatus = '1'
+        this.load(1)
+      }else {
+        this.cancelStatus = null
+        this.load(1)
+      }
     },
     cancelOrder(row) {
       // 取消征订单时改为2 已取消
       this.form = JSON.parse(JSON.stringify(row))
       this.form.cancelStatus = '2'
       // 向后端发起请求修改 征订单是否取消的状态
-      this.$request.put('/orderForm/cancelStatus',this.form).then(res =>{
-        if (res.code === '200'){
-          this.$message.success('修改成功')
-          this.load(1)
-        }else {
-          this.$message.error(res.msg)  // 弹出错误的信息
-        }
-      })
-
-    },
-    save() {   // 保存按钮触发的逻辑  它会触发新增或者更新
-      this.$refs['formRef'].validate((valid) => {
-        if (valid) {
-          this.$request({ // 是否存在id判断新增还是修改的关键
-            url: this.form.textbookId ? '/textbook/updateTextbook' : '/textbook/addTextbook',
-            method: this.form.textbookId ? 'PUT' : 'POST',
-            data: this.form
-          }).then(res => {
-            if (res.code === '200') {  // 表示成功保存
-              this.$message.success('保存成功')
-              this.load(1)
-              this.fromVisible = false
-            } else {
-              this.$message.error(res.msg)  // 弹出错误的信息
-            }
-          })
-        }
+      this.$confirm('您确定取消吗？', '确认取消', {type: "warning"}).then(response => {
+        this.$request.put('/orderForm/cancelStatus', this.form).then(res => {
+          if (res.code === '200') {
+            this.$message.success('修改成功')
+            this.load(1)
+          } else {
+            this.$message.error(res.msg)  // 弹出错误的信息
+          }
+        })
+      }).catch(() => {
+        this.load(1)
       })
     },
     saveOrder() { // 生成征订单

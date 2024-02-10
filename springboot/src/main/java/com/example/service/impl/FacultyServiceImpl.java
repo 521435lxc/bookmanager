@@ -51,12 +51,14 @@ public class FacultyServiceImpl extends ServiceImpl<FacultyMapper, Faculty> impl
     public Result updateFaculty(Faculty faculty) {
 
         //编辑院
-//        先校验院的名字再插入
+//        先校验院的名字再插入 如果没改也默认可以保存成功
         LambdaQueryWrapper<Faculty> Wrapper = new LambdaQueryWrapper<>();
         Wrapper.eq(Faculty::getFacultyName,faculty.getFacultyName());
         Faculty dbFaculty = facultyMapper.selectOne(Wrapper);
-        if (dbFaculty != null){
-            throw new CustomException(ResultCodeEnum.FACULTY_EXIST);
+        if (dbFaculty != null){ // 查到了就抛出
+            if (dbFaculty.getFacultyId() != faculty.getFacultyId()){
+                throw new CustomException(ResultCodeEnum.DEPARTMENT_EXIST);
+            }
         }
         int i = facultyMapper.updateById(faculty);
         if (i > 0){

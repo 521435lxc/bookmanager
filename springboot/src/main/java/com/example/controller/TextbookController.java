@@ -28,6 +28,7 @@ public class TextbookController {
      //  查询全部
     @GetMapping("/selectAll")
     public Result selectAll(Textbook textbook){
+
         List<Textbook> textbookList = textbookService.selectAllTextbook(textbook);
         return Result.success(textbookList);
     }

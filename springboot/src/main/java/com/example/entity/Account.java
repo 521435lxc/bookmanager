@@ -31,7 +31,7 @@ public class Account {
     private String phoneNumber;
 
     // 为了防止系主任
-    private String departmentId;
+    private Integer departmentId;
     private String departmentName;
 
     private String newPassword;

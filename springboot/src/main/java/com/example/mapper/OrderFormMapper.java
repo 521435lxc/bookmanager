@@ -13,6 +13,9 @@ import java.util.List;
  * @since 2024-01-24 22:21:17
  */
 public interface OrderFormMapper extends BaseMapper<OrderForm> {
+
     List<OrderForm> selectAll(OrderForm orderForm);
+
+    List<OrderForm> selectAllByIds(List<Integer> ids);
 }
 

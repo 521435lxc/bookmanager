@@ -82,16 +82,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }else {
             throw new CustomException(ResultCodeEnum.USER_NOT_EXIST_ERROR);
         }
+
+        // 查一下这个人是不是系主任 然后把user里的departmentId的属性加上,到时候订单表里好查，只能看自己部门
+        LambdaQueryWrapper<Department> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Department::getDepartmentManagerId,user.getUserId());
+        Department department = departmentMapper.selectOne(wrapper);
+
         // 查询用户的角色名称 用selectById要在类的主键上加上注解@TableId
         Role role = roleMapper.selectById(user.getRoleId());
         // 生成token
         String tokenData = user.getUserId() + "-" + role.getRoleName();
         String token = TokenUtils.createToken(tokenData, account.getPassword());
-
-//        account.setRoleName(role.getRoleName());
         account = BeanCopyUtils.copyBean(user, Account.class);
         account.setToken(token);
         account.setRoleName(role.getRoleName());
+        // 如果能查到在赋值
+        if (!ObjectUtil.isEmpty(department))
+        {
+            account.setDepartmentId(department.getDepartmentId());
+        }
         return account;
     }
 

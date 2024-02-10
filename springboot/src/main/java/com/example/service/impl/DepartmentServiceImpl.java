@@ -136,7 +136,7 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
         User newManager = userMapper.selectOne(queryWrapper); // 将要被设置成系主任的用户
 
         LambdaQueryWrapper<Department> departmentWrapper = new LambdaQueryWrapper<>();
-        departmentWrapper.eq(Department::getDepartmentName,department.getDepartmentName());
+        departmentWrapper.eq(Department::getDepartmentId,department.getDepartmentId());
         Department dbDepartment = departmentMapper.selectOne(departmentWrapper); // 将要被修改的部门
 
         LambdaQueryWrapper<User> userWrapper = new LambdaQueryWrapper<>();
@@ -160,7 +160,17 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
 
 
         // 更新系表
+        // 先查一下系名存不存在
+        LambdaQueryWrapper<Department> lambdaWrapper = new LambdaQueryWrapper<>();
+        lambdaWrapper.eq(Department:: getDepartmentName, department.getDepartmentName());
+        Department one = departmentMapper.selectOne(lambdaWrapper);
+        if (one != null){
+            if (one.getDepartmentId() != department.getDepartmentId()){
+                throw new CustomException(ResultCodeEnum.DEPARTMENT_EXIST);
+            }
+        }
         department.setDepartmentId(dbDepartment.getDepartmentId());
+        department.setDepartmentManagerId(newManager.getUserId());
         int i = departmentMapper.updateById(department);
         if (i > 0){
 

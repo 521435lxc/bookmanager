@@ -39,7 +39,7 @@
          <el-table-column label="操作" width="180" align="center">
            <template v-slot="scope">
              <el-button plain type="success" @click="queryDepartment(scope.row)" size="mini">专业</el-button>
-             <el-button plain type="primary" @click="facultyEdit(scope.row)" size="mini">编辑</el-button>
+             <el-button v-if="user.roleName==='ADMIN'  " plain type="primary" @click="facultyEdit(scope.row)" size="mini">编辑</el-button>
            </template>
          </el-table-column>
        </el-table>
@@ -66,7 +66,8 @@
               <template v-slot="scope">
                 <el-button v-if="user.roleName ==='ADMIN'" plain type="primary" @click="departmentEdit(scope.row)" size="mini">编辑</el-button>
                 <el-button v-if="user.roleName ==='ADMIN'" plain type="danger" size="mini" @click=delDepartment(scope.row.departmentId)>删除</el-button>
-                <el-button v-if="user.roleName ==='TEACHER'||user.roleName ==='MANAGER' " plain type="success" size="mini" @click="order(scope.row)">征订</el-button>
+                <el-button v-if="user.roleName ==='TEACHER'||user.roleName ==='MANAGER' " plain type="success" size="mini"
+                           @click="order(scope.row)">征订</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -85,7 +86,7 @@
       </el-row>
 
     </div>
-
+<!--    新增学院-->
     <el-dialog title="" name="信息" :visible.sync="fromVisible1" width="40%" :close-on-click-modal="false" destroy-on-close>
       <el-form :model="facultyForm" :rules="facultyRules" ref="facultyFormRef" label-width="100px" style="padding-right: 50px;">
         <el-form-item label="图片">
@@ -110,7 +111,7 @@
         </div>
       </el-form>
     </el-dialog>
-
+<!--        新增系-->
     <el-dialog title="" name="信息" :visible.sync="fromVisible2" width="40%" :close-on-click-modal="false" destroy-on-close>
       <el-form :model="departmentForm" :rules="departmentRules" ref="departmentFormRef" label-width="100px" style="padding-right: 50px;">
 
@@ -147,11 +148,42 @@
         </div>
       </el-form>
     </el-dialog>
+<!--        征订弹层-->
+    <el-dialog title="征订单" name="征订" :visible.sync="orderVisible" width="40%" :close-on-click-modal="false" destroy-on-close>
+      <el-form :model="orderForm" :rules="orderRules" ref="orderFormRef" label-width="100px" style="padding-right: 50px;">
+        <el-form-item label="书名" prop="textbookName">
+          <el-select  clearable filterable v-model="orderForm.textbookName" placeholder="教材" style="width: 100%">
+            <el-option
+                v-for="item in textbookData"
+                :key="item.textbookName"
+                :label="item.textbookName"
+                :value="item.textbookName"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="申请数量" prop="applicationNumber">
+          <el-input v-model="orderForm.applicationNumber" placeholder="申请数量"></el-input>
+        </el-form-item>
+        <el-form-item label="使用系别" prop="departmentName">
+          <el-input v-model="orderForm.departmentName" placeholder="使用系别"></el-input>
+        </el-form-item>
 
+        <el-form-item label="申请说明" prop="applicationIllustration">
+          <el-input type="textarea" :row="2" v-model="orderForm.applicationIllustration" placeholder="申请说明"></el-input>
+        </el-form-item>
+
+        <div style="text-align: center; margin-bottom: 20px">
+          <el-button type="primary" @click="saveOrder">保 存</el-button>
+        </div>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import Textbook from "@/views/manager/Textbook";
+
 export default {
   name: "Department",
   data() {
@@ -161,7 +193,7 @@ export default {
       facultyLoadPage: [],
       departmentData: [],
       departmentLoadPage: [],
-
+      textbookData: [],
       // 学院的分页
       pageNum: 1,   // 当前的页码
       pageSize: 10,  // 每页显示的个数
@@ -175,6 +207,7 @@ export default {
 
       fromVisible1: false,
       fromVisible2: false,
+      orderVisible: false,
 
       facultyForm: {},
       departmentForm: {},
@@ -190,6 +223,27 @@ export default {
       queryCondition: {
         textbookName:null ,
       },
+      // 控制征订弹层显示
+      orderForm: {},
+      orderRules: {
+        textbookName: [
+          {
+            required: true, message: '请选择书名', trigger: 'blur'
+          },
+        ],
+        applicationNumber: [
+          {
+            required: true,
+            message: '请输入数量',
+            trigger: 'blur'
+          },{
+            pattern: /^[1-9][0-9]*$/,
+            message: '数量格式不对，请输入数字',
+            trigger: 'blur'
+          }
+        ],
+
+      },
 
     }
   },
@@ -199,6 +253,7 @@ export default {
     this.loadDepartment()
     this.loadDepartmentPage(1)
     this.queryTeacher()
+    this.loadTextbook()
   },
   methods: {
     loadFaculty() {
@@ -214,6 +269,16 @@ export default {
       this.$request.get('/department/selectAll').then(res =>{
         if(res.code === '200') {
           this.departmentData = res.data
+        } else {
+          this.$message.error(res,msg)
+        }
+      })
+    },
+    loadTextbook() {
+      this.$request.get('/textbook/selectAll').then(res =>{
+        if(res.code === '200') {
+          this.textbookData = res.data
+          this.textbookData = this.textbookData.filter(textbook => textbook.orderStatus === '1')
         } else {
           this.$message.error(res,msg)
         }
@@ -250,7 +315,7 @@ export default {
       this.facultyId = row.facultyId
       this.loadDepartmentPage(1)
     },
-    // 查询没有省份的教师信息
+    // 查询没有身份的教师信息
     queryTeacher() {
       this.$request.get('/user/queryTeacher').then(res => {
         if (res.code === '200') {
@@ -270,6 +335,28 @@ export default {
       this.queryTeacher() // 重新加载教师的数据
       // this.loadDepartmentPage(1)
     },
+
+    order(row){
+      // 发起征订
+      this.orderForm = {}
+      this.orderVisible = true
+      this.orderForm.departmentName = row.departmentName
+    },
+    saveOrder(){
+      this.$refs['orderFormRef'].validate((valid) => {
+        if (valid) {
+          this.$request.post("/orderForm/addOrderForm",this.orderForm).then(res =>{
+            if (res.code === '200'){
+              this.$message.success('征订成功')
+              this.orderVisible = false
+            }else {
+              this.$message.error(res.msg)  // 弹出错误的信息
+            }
+          })
+        }
+      })
+    },
+
     facultyEdit(row) {
       this.facultyForm = JSON.parse(JSON.stringify(row))
       this.fromVisible1 = true;

@@ -5,70 +5,21 @@
 <mapper namespace="com.example.mapper.NoticeMapper">
 
     <sql id="Base_Column_List">
-        id,title,content,time,user
+        announcement_id,announcement_title,announcement_text,announcement_time,announcer_id
     </sql>
 
     <select id="selectAll" resultType="com.example.entity.Notice">
         select
-        <include refid="Base_Column_List" />
-        from notice
+        <include refid="Base_Column_List" />, u.real_name
+        from notice n
+        left join user u on u.user_id = n.announcer_id
         <where>
-            <if test="id != null"> and id= #{id}</if>
-            <if test="title != null"> and title like concat('%', #{title}, '%')</if>
-            <if test="content != null"> and content= #{content}</if>
-            <if test="time != null"> and time= #{time}</if>
-            <if test="user != null"> and user= #{user}</if>
+            <if test="announcementId != null"> and announcement_id= #{announcementId}</if>
+            <if test="announcementTitle != null"> and announcement_title like concat('%', #{announcementTitle}, '%')</if>
+            <if test="announcementText != null"> and announcement_text= #{announcementText}</if>
+            <if test="announcementTime != null"> and announcement_time= #{announcementTime}</if>
         </where>
-        order by id desc
+        order by announcement_id asc
     </select>
-
-    <select id="selectById" resultType="com.example.entity.Notice">
-        select
-        <include refid="Base_Column_List" />
-        from notice
-        where id = #{id}
-    </select>
-
-    <delete id="deleteById">
-        delete from notice
-        where  id = #{id}
-    </delete>
-
-    <insert id="insert" parameterType="com.example.entity.Notice" useGeneratedKeys="true">
-        insert into notice
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-                <if test="id != null">id,</if>
-                <if test="title != null">title,</if>
-                <if test="content != null">content,</if>
-                <if test="time != null">time,</if>
-                <if test="user != null">user,</if>
-        </trim>
-        <trim prefix="values (" suffix=")" suffixOverrides=",">
-                <if test="id != null">#{id},</if>
-                <if test="title != null">#{title},</if>
-                <if test="content != null">#{content},</if>
-                <if test="time != null">#{time},</if>
-                <if test="user != null">#{user},</if>
-        </trim>
-    </insert>
-
-    <update id="updateById" parameterType="com.example.entity.Notice">
-        update notice
-        <set>
-            <if test="title != null">
-                title = #{title},
-            </if>
-            <if test="content != null">
-                content = #{content},
-            </if>
-            <if test="time != null">
-                time = #{time},
-            </if>
-            <if test="user != null">
-                user = #{user},
-            </if>
-        </set>
-        where id = #{id} 
-    </update>
 
 </mapper>

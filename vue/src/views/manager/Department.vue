@@ -30,7 +30,7 @@
          <el-table-column label="图片" align="center">
              <template v-slot="scope">
                <div style="display: flex; align-items: center">
-                 <el-image style="width: 30px; height: 40px; border-radius: 50%" v-if="scope.row.facultyBadge"
+                 <el-image style="width: 40px; height: 40px; border-radius: 50%" v-if="scope.row.facultyBadge"
                            :src="scope.row.facultyBadge" :preview-src-list="[scope.row.facultyBadge]"></el-image>
                </div>
              </template>
@@ -97,7 +97,7 @@
                 :show-file-list="false"
                 :on-success="handleAvatarSuccess"
             >
-              <img v-if="facultyForm.facultyBadge" :src="facultyForm.facultyBadge" class="avatar" />
+              <img style="width: 148px; height: 148px" v-if="facultyForm.facultyBadge" :src="facultyForm.facultyBadge" class="avatar" />
               <i v-else class="el-icon-plus avatar-uploader-icon"></i>
             </el-upload>
           </div>
@@ -448,6 +448,10 @@ export default {
     },
     departmentCurrentChange(pageNum){
       this.loadDepartmentPage(pageNum)
+    },
+    handleAvatarSuccess(response,file,fileList) {
+      // 把头像属性换成上传的图片的链接
+      this.facultyForm.facultyBadge = response.data
     }
   }
 }

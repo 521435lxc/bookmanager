@@ -3,19 +3,19 @@
     <div class="card" style="font-size: large; padding-left: 10px">
       您好{{ user?.username }}，欢迎使用本系统!
     </div>
-    <el-row style="height: 40vh">
-      <el-col style="text-align: center" :span="24">
-        <el-col :span="24">
-          <div class="block">
-            <el-carousel height="300px" >
-              <el-carousel-item v-for="item in 4" :key="item">
-                <h3 class="small">{{ item }}</h3>
-              </el-carousel-item>
-            </el-carousel>
-          </div>
-        </el-col>
-      </el-col>
-    </el-row>
+<!--    <el-row style="height: 40vh">-->
+<!--      <el-col style="text-align: center" :span="24">-->
+<!--        <el-col :span="24">-->
+<!--          <div class="block">-->
+<!--            <el-carousel height="300px" >-->
+<!--              <el-carousel-item v-for="item in 4" :key="item">-->
+<!--                <h3 class="small">{{ item }}</h3>-->
+<!--              </el-carousel-item>-->
+<!--            </el-carousel>-->
+<!--          </div>-->
+<!--        </el-col>-->
+<!--      </el-col>-->
+<!--    </el-row>-->
     <el-row :gutter=10>
       <div style="display: flex; margin: 10px 0">
         <div style="width: 50%;" class="card">

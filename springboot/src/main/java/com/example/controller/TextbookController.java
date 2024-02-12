@@ -1,12 +1,20 @@
 package com.example.controller;
 
+import cn.hutool.poi.excel.ExcelReader;
+import cn.hutool.poi.excel.ExcelUtil;
+import com.example.common.Constants;
 import com.example.common.Result;
+import com.example.common.enums.ResultCodeEnum;
 import com.example.entity.Textbook;
+import com.example.entity.vo.TextbookVo;
 import com.example.service.TextbookService;
+import com.example.utils.BeanCopyUtils;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -36,7 +44,7 @@ public class TextbookController {
     // 分页查询
     @GetMapping  ("/selectPage")
     public Result selectPage(Textbook textbook,
-                             @RequestParam(defaultValue = "1") Integer pageNum,
+                             @RequestParam Integer pageNum,
                              @RequestParam(defaultValue = "10") Integer pageSize) {
         PageInfo<Textbook> page = textbookService.selectPage(textbook, pageNum, pageSize);
         return Result.success(page);
@@ -66,6 +74,26 @@ public class TextbookController {
     @DeleteMapping("/deleteBatch")
     public Result deleteBatchTextbook(@RequestBody List<Integer> textbookIds){
         return textbookService.deleteBatchTextbook(textbookIds);
+    }
+
+    // 导入书单
+    @PostMapping("/importTextbook")
+    public Result importTextbook(MultipartFile file) throws IOException {
+        ExcelReader reader = ExcelUtil.getReader(file.getInputStream());
+        List<TextbookVo> textbookVos = reader.readAll(TextbookVo.class);
+        textbookVos.stream().forEach(
+                t->t.setOrderStatus(Constants.AVAILABLE)
+        );
+        List<Textbook> textbookList = BeanCopyUtils.copyBeanList(textbookVos, Textbook.class);
+
+        // 写入数据到数据库
+        try {
+            textbookService.saveBatch(textbookList);
+        }catch (Exception e){
+            e.printStackTrace();
+            return Result.error(ResultCodeEnum.SYSTEM_ERROR);
+        }
+        return Result.success();
     }
 }
 

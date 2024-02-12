@@ -99,12 +99,15 @@ public class TextbookServiceImpl extends ServiceImpl<TextbookMapper, Textbook> i
     public Result deleteBatchTextbook(List<Integer> textbookIds) {
         int i = textbookMapper.deleteBatchIds(textbookIds);
 
-            return Result.success();
-
+           if (i > 0){
+               return Result.success();
+           }
+        throw new CustomException(ResultCodeEnum.SYSTEM_ERROR);
     }
 
     @Override
     public Result updateTextbook(Textbook textbook) {
+
         LambdaQueryWrapper<Textbook> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Textbook::getTextbookId, textbook.getTextbookId());
         int update = textbookMapper.update(textbook,queryWrapper);

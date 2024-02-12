@@ -3,11 +3,15 @@ package com.example.entity;
 import java.util.Date;
 
 import java.io.Serializable;
+
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import org.checkerframework.common.aliasing.qual.Unique;
+
 /**
  * (Notice)表实体类
  *
@@ -20,9 +24,9 @@ import com.baomidou.mybatisplus.annotation.TableName;
 @NoArgsConstructor
 @TableName("notice")
 public class Notice  {
-    //公告id@TableId
+    //公告id
+    @TableId
     private Integer announcementId;
-
     //公告内容
     private String announcementTitle;
     //公告内容
@@ -31,6 +35,10 @@ public class Notice  {
     private Date announcementTime;
     //发布人id (用户id)
     private Integer announcerId;
+
+    // =====================
+    @TableField(exist = false)
+    private String realName;
 
 
 

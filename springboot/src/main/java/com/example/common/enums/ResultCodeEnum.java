@@ -21,6 +21,7 @@ public enum ResultCodeEnum {
     TEXTBOOK_EXIST("5010", "教材已存在"),
     DEPARTMENT_EXIST("5011", "该系已存在"),
     FACULTY_EXIST("5012", "该院已存在"),
+    NOTICE_EXIST("5013", "标题已存在"),
     ;
 
     public String code;

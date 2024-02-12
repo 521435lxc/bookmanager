@@ -32,7 +32,8 @@
         left join user u on o.applicant_id = u.user_id
         left join department d on o.department_id = d.department_id
         <where>
-            <foreach item="id" collection="ids" open="(" separator="," close=")">
+            order_form_id in
+            <foreach item="id" collection= "ids" open="(" separator="," close=")">
                 #{id}
             </foreach>
         </where>

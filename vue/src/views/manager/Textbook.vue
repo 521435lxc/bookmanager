@@ -13,9 +13,18 @@
 
       <el-button style="margin-left: 10px" v-if="user.roleName ==='ADMIN' " type="primary" plain @click="handleAdd">新增</el-button>
       <el-button v-if="user.roleName ==='ADMIN' " type="danger" plain @click="delBatch">批量删除</el-button>
-      <el-button v-if="user.roleName ==='ADMIN' " type="success" plain @click="eport">导入书单</el-button>
+      <el-upload  :headers="{token: user.token}"
+                  :action= "$baseUrl+ '/textbook/importTextbook'"
+                  :show-file-list="false"
+                  :on-success="handleImport"
+                  style="display: inline-block; margin-left: 10px;"
+      >
+        <el-button v-if="user.roleName ==='ADMIN' " type="success" plain>导入书单</el-button>
+      </el-upload>
 
-      <el-button size="mini">
+
+
+      <el-button style="margin-left: 10px" size="mini">
         <el-switch style="margin-left: 10px"
                    v-model="available"
                    active-text="可征订"
@@ -49,7 +58,7 @@
             <span v-else>不可用</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="180" align="center">
+        <el-table-column v-if="user.roleName ==='ADMIN'" label="操作" width="180" align="center">
           <template v-slot="scope">
             <el-button v-if="user.roleName ==='ADMIN'" plain type="primary" @click="handleEdit(scope.row)" size="mini">编辑</el-button>
             <el-button v-if="user.roleName ==='ADMIN'" plain type="danger" size="mini" @click=del(scope.row.textbookId)>删除</el-button>
@@ -242,18 +251,26 @@ export default {
     }
   },
   created() {
-    this.load(1)
+    this.load(this.pageNum)
     this.loadTextbook()
     this.selectCategory()
     this.loadDepartment()
   },
   methods: {
+    handleImport(res, file, fileList) {
+      if (res.code === '200'){
+        this.$message.success('导入成功')
+        this.load(1)
+      }else {
+        this.$message.error(res.msg)
+      }
+    },
     loadTextbook() {
       this.$request.get('/textbook/selectAll').then(res =>{
         if(res.code === '200') {
           this.textbookData = res.data
         } else {
-          this.$message.error(res,msg)
+          this.$message.error(res.msg)
         }
       })
     },
@@ -262,16 +279,16 @@ export default {
         if(res.code === '200') {
           this.departmentData = res.data
         } else {
-          this.$message.error(res,msg)
+          this.$message.error(res.msg)
         }
       })
     },
     load(pageNum) {  // 分页查询
-      if (pageNum) this.pageNum = pageNum
+      // if (!pageNum) this.pageNum = pageNum
 
       this.$request.get('/textbook/selectPage', {
         params: {
-          pageNum: this.pageNum,
+          pageNum: pageNum,
           pageSize: this.pageSize,
           textbookName: this.queryCondition.textbookName,
           orderStatus: this.queryCondition.orderStatus
@@ -357,7 +374,7 @@ export default {
         this.$request.delete('/textbook/deleteById/' + textbookId).then(res => {
           if (res.code === '200') {   // 表示操作成功
             this.$message.success('删除成功')
-            this.load(1)
+            this.load(this.pageNum)
           } else {
             this.$message.error(res.msg)  // 弹出错误的信息
           }
@@ -378,7 +395,7 @@ export default {
         this.$request.delete('/textbook/deleteBatch', {data: this.textbookIds}).then(res => {
           if (res.code === '200') {   // 表示操作成功
             this.$message.success('删除成功')
-            this.load(1)
+            this.load(this.pageNum)
           } else {
             this.$message.error(res.msg)  // 弹出错误的信息
           }
@@ -391,7 +408,9 @@ export default {
       this.load(1)
     },
     handleCurrentChange(pageNum) {
-      this.load(pageNum)
+      this.pageNum = pageNum
+      this.load(this.pageNum)
+
     },
     // 上传文件的方法
     handleBookCoverSuccess(response, file, fileList) {

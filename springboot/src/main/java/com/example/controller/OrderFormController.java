@@ -10,17 +10,21 @@ import com.example.entity.Account;
 import com.example.entity.OrderForm;
 import com.example.entity.Textbook;
 import com.example.entity.vo.OrderFormVo;
+import com.example.mapper.OrderFormMapper;
 import com.example.service.OrderFormService;
+import com.example.utils.BeanCopyUtils;
 import com.example.utils.TokenUtils;
 import com.github.pagehelper.PageInfo;
 import com.sun.deploy.net.URLEncoder;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,8 +44,10 @@ public class OrderFormController {
      */
     @Resource
     private OrderFormService orderFormService;
-    
-    
+
+    @Resource
+    private OrderFormMapper orderFormMapper;
+
     // 新增征订单
     @PostMapping("/addOrderForm")
     public Result addOrderForm(@RequestBody OrderForm orderForm){
@@ -80,19 +86,18 @@ public class OrderFormController {
     public void exportBatch(@RequestParam String orderFormIdList, HttpServletResponse response) throws IOException {
 
         ExcelWriter writer = ExcelUtil.getWriter(true);
-
         List<OrderForm> list = null;
-        LambdaQueryWrapper<OrderForm> queryWrapper = new LambdaQueryWrapper<>();
+        List<OrderFormVo> OrderFormVoList = null;
         if (StrUtil.isNotBlank(orderFormIdList)) {
             List<Integer> ids = Arrays.stream(orderFormIdList.split(",")).map(Integer::valueOf).collect(Collectors.toList());
-//            queryWrapper.in(OrderForm::getOrderFormId, ids);
-             list = orderFormService.selectAllByIds(ids);
+            list = orderFormService.selectAllByIds(ids);
+            OrderFormVoList = BeanCopyUtils.copyBeanList(list, OrderFormVo.class);
+            OrderFormVoList.stream().forEach(item->item.setApplicationStatus("通过"));
         }
-//        list = orderFormService.list(queryWrapper);  
-        writer.write(list, true);
+        writer.write(OrderFormVoList, true);
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
-        response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode("征订单表", "UTF-8") + ".xlsx");
+        response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode("征订单", "UTF-8") + ".xlsx");
         ServletOutputStream outputStream = response.getOutputStream();
 
         writer.flush(outputStream, true);
@@ -100,9 +105,31 @@ public class OrderFormController {
         outputStream.flush();
         outputStream.close();
 
-
     }
 
+    @GetMapping("/exportOne")
+    public void exportOne(@RequestParam int orderFormId, HttpServletResponse response) throws IOException {
+
+        ExcelWriter writer = ExcelUtil.getWriter(true);
+
+        List<Integer> idList = new ArrayList<>();
+        idList.add(orderFormId);
+        List<OrderForm> orderForm = orderFormService.selectAllByIds(idList);
+
+        List<OrderFormVo> OrderFormVoList = BeanCopyUtils.copyBeanList(orderForm, OrderFormVo.class);
+        OrderFormVoList.stream().forEach(item->item.setApplicationStatus("通过"));
+
+        writer.write(OrderFormVoList, true);
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
+        response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode("征订单", "UTF-8") + ".xlsx");
+        ServletOutputStream outputStream = response.getOutputStream();
+
+        writer.flush(outputStream, true);
+        writer.close();
+        outputStream.flush();
+        outputStream.close();
+
+    }
 
 }
 

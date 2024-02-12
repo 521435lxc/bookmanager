@@ -139,23 +139,11 @@ export default {
         this.load(1)
       }
     },
+    // 单个下载征订单
     downLoad(row) {
-      // 取消征订单时改为2 已取消
-      this.form = JSON.parse(JSON.stringify(row))
-      this.form.cancelStatus = '2'
-      // 向后端发起请求修改 征订单是否取消的状态
-      this.$confirm('您确定取消吗？', '确认取消', {type: "warning"}).then(response => {
-        this.$request.put('/orderForm/cancelStatus', this.form).then(res => {
-          if (res.code === '200') {
-            this.$message.success('修改成功')
-            this.load(1)
-          } else {
-            this.$message.error(res.msg)  // 弹出错误的信息
-          }
-        })
-      }).catch(() => {
-        this.load(1)
-      })
+      // let orderFormIdList = this.orderFormIds.join(',');
+      window.open( this.$baseUrl + '/orderForm/exportOne?token='
+          + this.user.token + '&orderFormId=' + row.orderFormId)
     },
     saveOrder() { // 生成征订单
       this.$refs['orderFormRef'].validate((valid) => {
@@ -176,29 +164,23 @@ export default {
       this.orderFormSelected = rows.map(v => v)
     },
     exportBatch() { // 批量导出
+      // 是否选了数据
       if (!this.orderFormIds.length){
         this.$message.warning('请选择数据')
         return
       }
-      // 遍历是否选了未通过的
-      this.orderFormSelected.forEach( item => {
-        if(item.applicationStatus === '4'){
+      // 是否选对了数据
+      for (let i = 0; i < this.orderFormSelected.length; i++) {
+        if(this.orderFormSelected[i].applicationStatus === '4'){
           this.$message.warning('存在未通过的申请')
-          return false
+          return;
         }
-      })
+      }
 
+      // 提供下载
       let orderFormIdList = this.orderFormIds.join(',');
-      window.open( process.env.VUE_APP_BASEURL + '/orderForm/exportBatch?token='
+      window.open( this.$baseUrl + '/orderForm/exportBatch?token='
           + this.user.token + '&orderFormIdList=' + orderFormIdList)
-      // this.$request.post('/orderForm/exportBatch', this.orderFormVoList, {
-      // }).then(res => {
-      //   if(res.code === '200'){
-      //     this.$message.success('下载成功')
-      //   }else {
-      //     this.$message.error(res.msg)  // 弹出错误的信息
-      //   }
-      // })
     },
 
     reset() {

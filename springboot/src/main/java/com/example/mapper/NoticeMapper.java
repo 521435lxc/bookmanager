@@ -2,7 +2,10 @@ package com.example.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.example.entity.Notice;
+import com.example.entity.Textbook;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 /**
  * (Notice)表数据库访问层
@@ -13,5 +16,6 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface NoticeMapper extends BaseMapper<Notice> {
 
+    List<Notice> selectAll(Notice notice);
 }
 

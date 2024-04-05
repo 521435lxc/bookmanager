@@ -1,7 +1,7 @@
 <template>
   <div class="container">
-    <div style="width: 400px; padding: 30px; background-color: white; border-radius: 5px;">
-      <div style="text-align: center; font-size: 20px; margin-bottom: 20px; color: #333">欢迎注册</div>
+    <div style="width: 400px; padding: 30px; background-color: white; border-radius: 5px;  opacity:0.9">
+      <div  style="text-align: center; font-size: 20px; margin-bottom: 20px; color: #333;">欢迎注册</div>
       <el-form :model="form" :rules="rules" ref="formRef">
         <el-form-item prop="username">
           <el-input prefix-icon="el-icon-user" placeholder="请输入账号" v-model="form.username"></el-input>
@@ -23,7 +23,7 @@
         <el-form-item prop="departmentName"
                       v-if="form.roleName ==='MANAGER' ">
 <!--          这点需要用到native因为 这个元素应该没有点击事件-->
-          <el-select  @click.native="selectDepartment" v-model="form.departmentName" placeholder="请选择系别" style="width: 100%">
+          <el-select  filterable @click.native="selectDepartment" v-model="form.departmentName" placeholder="请选择系别" style="width: 100%">
 <!--            key唯一表示 label展示值 value 传递的实际值-->
             <el-option
                 v-for="item in departmentList"

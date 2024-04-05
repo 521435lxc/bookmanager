@@ -70,7 +70,7 @@
             <el-menu-item v-if="user.roleName ==='MANAGER'|| user.roleName ==='TEACHER' " index="/applicationPending">
               申请待办
             </el-menu-item>
-            <el-menu-item index="/applicationProcessed">
+            <el-menu-item v-if="user.roleName ==='MANAGER'|| user.roleName ==='TEACHER' " index="/applicationProcessed">
               申请已办
             </el-menu-item>
           </el-submenu>

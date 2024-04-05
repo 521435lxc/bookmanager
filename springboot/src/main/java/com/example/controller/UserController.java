@@ -67,4 +67,15 @@ public class UserController {
     public Result updatePassword(@RequestBody Account account){
         return userService.updatePassword(account);
     }
+
+    //===================test=================
+    @PostMapping("/test")
+    public Result test(@RequestBody String[] testData){
+        int length = testData.length;
+        for (String testDatum : testData) {
+            System.out.println(testDatum);
+        }
+        System.out.println(length);
+        return Result.success();
+    }
 }

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.OrderFormMapper">
+
+    <sql id="Base_Column_List">
+        order_form_id,ISBN,textbook_name,application_number,o.department_id,application_time,
+        applicant_id,application_status,reply_message,application_illustration,cancel_status
+    </sql>
+
+    <select id="selectAll" resultType="com.example.entity.OrderForm">
+        select
+        <include refid="Base_Column_List" />,u.real_name, d.department_name
+        from order_form o
+        left join user u on o.applicant_id = u.user_id
+        left join department d on o.department_id = d.department_id
+        <where>
+            <if test="textbookName != null"> and textbook_name like concat('%', #{textbookName}, '%')</if>
+            <if test="cancelStatus != null"> and cancel_status= #{cancelStatus}</if>
+            <if test="applicationStatus !=null"> and application_status = #{applicationStatus}</if>
+            <if test="applicantId !=null"> and applicant_id = #{applicantId}</if>
+            <if test="departmentId !=null"> and d.department_id = #{departmentId}</if>
+        </where>
+        order by user_id asc
+    </select>
+
+    <select id="selectAllByIds" parameterType="java.util.List" resultType="com.example.entity.OrderForm">
+        select
+        <include refid="Base_Column_List" />,u.real_name, d.department_name
+        from order_form o
+        left join user u on o.applicant_id = u.user_id
+        left join department d on o.department_id = d.department_id
+        <where>
+            order_form_id in
+            <foreach item="id" collection= "ids" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </where>
+        order by order_form_id asc
+    </select>
+
+
+</mapper>

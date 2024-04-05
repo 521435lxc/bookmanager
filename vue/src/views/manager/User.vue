@@ -7,6 +7,7 @@
 
       <el-button type="info" plain style="margin-left: 10px" @click="load(1)">查询</el-button>
       <el-button type="warning" plain style="margin-left: 10px" @click="reset">重置</el-button>
+<!--      <el-button type="warning" plain style="margin-left: 10px" @click="test">测试</el-button>-->
     </div>
 
     <div class="operation">
@@ -145,6 +146,7 @@ export default {
 
       textbookData: [], // 查询到的所有信息都存在
       textbookIds: [],
+      testData:["ni","ajh"]
     }
   },
   created() {
@@ -153,6 +155,15 @@ export default {
     this.selectCategory()
   },
   methods: {
+    test() {
+      this.$request.post('/user/test',this.testData).then(res =>{
+        if(res.code === '200') {
+          this.$message.success("没出错")
+        } else {
+          this.$message.error(res)
+        }
+      })
+    },
     loadUser() {
       this.$request.get('/user/selectAll').then(res =>{
         if(res.code === '200') {

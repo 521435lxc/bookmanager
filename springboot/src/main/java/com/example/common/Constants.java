@@ -12,8 +12,10 @@ public interface Constants {
 
     int DEPARTMENT_MANAGER = 3;
 
-    int TEACHER = 2;
     int ADMIN = 1;
+    int TEACHER = 2;
+    int MANAGER = 3;
+    int DEANSOFFICE = 4;
 
 //    1 未审批 2 待教务处审批 3 通过 4 未通过
     String NO_APPROVAL = "1";

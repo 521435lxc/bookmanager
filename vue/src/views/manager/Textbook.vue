@@ -58,13 +58,15 @@
             <span v-else>不可用</span>
           </template>
         </el-table-column>
-        <el-table-column v-if="user.roleName ==='ADMIN'" label="操作" width="180" align="center">
+
+        <el-table-column  label="操作" width="180" align="center">
           <template v-slot="scope">
             <el-button v-if="user.roleName ==='ADMIN'" plain type="primary" @click="handleEdit(scope.row)" size="mini">编辑</el-button>
             <el-button v-if="user.roleName ==='ADMIN'" plain type="danger" size="mini" @click=del(scope.row.textbookId)>删除</el-button>
             <el-button v-if="user.roleName ==='TEACHER'|| user.roleName ==='MANAGER' " plain type="success" size="mini" @click="order(scope.row)">征订</el-button>
           </template>
         </el-table-column>
+
       </el-table>
 
 <!--       分页-->

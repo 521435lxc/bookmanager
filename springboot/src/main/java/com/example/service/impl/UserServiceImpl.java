@@ -1,4 +1,5 @@
 package com.example.service.impl;
+
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -59,7 +60,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Value("${spring.mail.username}")
     private String from;
 
-//    注入邮箱验证码的依赖
+    //    注入邮箱验证码的依赖
     @Autowired
     JavaMailSender javaMailSender;
 
@@ -68,24 +69,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public Account login(Account account) {
 
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getUsername,account.getUsername());
+        queryWrapper.eq(User::getUsername, account.getUsername());
         User user = userMapper.selectOne(queryWrapper);
-        if (user != null){
+        if (user != null) {
             String password = account.getPassword();
-            if (!password.equals(user.getPassword())){ // 校验密码
+            if (!password.equals(user.getPassword())) { // 校验密码
                 throw new CustomException(ResultCodeEnum.USER_ACCOUNT_ERROR);
             }
-            if (!user.getEnableStatus().equals(Constants.AVAILABLE)){ // 是否启用
+            if (!user.getEnableStatus().equals(Constants.AVAILABLE)) { // 是否启用
                 throw new CustomException(ResultCodeEnum.USER_ACCOUNT_UNAVAILABLE);
             }
 
-        }else {
+        } else {
             throw new CustomException(ResultCodeEnum.USER_NOT_EXIST_ERROR);
         }
 
         // 查一下这个人是不是系主任 然后把user里的departmentId的属性加上,到时候订单表里好查，只能看自己部门
         LambdaQueryWrapper<Department> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Department::getDepartmentManagerId,user.getUserId());
+        wrapper.eq(Department::getDepartmentManagerId, user.getUserId());
         Department department = departmentMapper.selectOne(wrapper);
 
         // 查询用户的角色名称 用selectById要在类的主键上加上注解@TableId
@@ -97,8 +98,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         account.setToken(token);
         account.setRoleName(role.getRoleName());
         // 如果能查到在赋值
-        if (!ObjectUtil.isEmpty(department))
-        {
+        if (!ObjectUtil.isEmpty(department)) {
             account.setDepartmentId(department.getDepartmentId());
         }
         return account;
@@ -108,7 +108,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public User selectById(Integer userId) {
 
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getUserId,userId);
+        queryWrapper.eq(User::getUserId, userId);
         return userMapper.selectOne(queryWrapper);
     }
 
@@ -120,44 +120,43 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         //根据用户名查询
         LambdaQueryWrapper<User> queryWrapperUser = new LambdaQueryWrapper<>();
         LambdaQueryWrapper<Role> queryWrapperRole = new LambdaQueryWrapper<>();
-        queryWrapperUser.eq(User::getUsername,account.getUsername());
-        queryWrapperRole.eq(Role::getRoleName,account.getRoleName());
+        queryWrapperUser.eq(User::getUsername, account.getUsername());
+        queryWrapperRole.eq(Role::getRoleName, account.getRoleName());
 
         User dbuser = userMapper.selectOne(queryWrapperUser);
 
-        if (dbuser == null){ // 如果查询不到就代表可以注册
-        // 根据用户角色名查询用户角色id
+        if (dbuser == null) { // 如果查询不到就代表可以注册
+            // 根据用户角色名查询用户角色id
             Role role = roleMapper.selectOne(queryWrapperRole);
-            if (role.getRoleId() == Constants.DEPARTMENT_MANAGER){
-        //   如果是系主任的注册要查一查这个系里面有没有department_manager，
-        //   如果有提示该系系主任已存在，如果没有就在系表中插入一条记录
+            if (role.getRoleId() == Constants.DEPARTMENT_MANAGER) {
+                //   如果是系主任的注册要查一查这个系里面有没有department_manager，
+                //   如果有提示该系系主任已存在，如果没有就在系表中插入一条记录
                 LambdaQueryWrapper<Department> queryWrapperdepartment = new LambdaQueryWrapper<>();
-                queryWrapperdepartment.eq(Department::getDepartmentName,account.getDepartmentName());
+                queryWrapperdepartment.eq(Department::getDepartmentName, account.getDepartmentName());
                 Department dbdepartment = departmentMapper.selectOne(queryWrapperdepartment);
-                if (!ObjectUtil.isEmpty(dbdepartment.getDepartmentManagerId())){
-                        // 如果存在系主任id说明有系主任
+                if (!ObjectUtil.isEmpty(dbdepartment.getDepartmentManagerId())) {
+                    // 如果存在系主任id说明有系主任
                     throw new CustomException(ResultCodeEnum.DEPARTMENT_MANAGER_EXIST);
-                }
-                else {
+                } else {
                     // 如果没有向该系插入系主任的id 名字信息 确切的说是修改
                     Department department = new Department();  // 创建一个department对象
 //                    还需要插入这条用户数据给user表
-                    User managerUser = BeanCopyUtils.copyBean(account,User.class);
+                    User managerUser = BeanCopyUtils.copyBean(account, User.class);
                     managerUser.setRoleId(role.getRoleId());
                     managerUser.setEnableStatus(Constants.AVAILABLE);
                     managerUser.setRegistrationDate(new Date());
                     int insert = userMapper.insert(managerUser);
-                    if (insert > 0){
+                    if (insert > 0) {
                         // 插入成功再想department表里面设置数据department_manager_id
                         // updateById 这个方法制定个id需要
                         department.setDepartmentId(dbdepartment.getDepartmentId());
                         department.setDepartmentManagerId(managerUser.getUserId());
-                        if (managerUser.getRealName() != null){
+                        if (managerUser.getRealName() != null) {
                             department.setDepartmentManagerName(managerUser.getRealName());
                         }
                         departmentMapper.updateById(department);
                         return Result.success();
-                    }else {
+                    } else {
                         throw new CustomException(ResultCodeEnum.SYSTEM_ERROR);
                     }
 
@@ -171,12 +170,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             // 设置一下注册的时间
             user.setRegistrationDate(new Date());
             int i = userMapper.insert(user);
-            if (i > 0){
+            if (i > 0) {
                 return Result.success();
-            }else {
+            } else {
                 throw new CustomException(ResultCodeEnum.SYSTEM_ERROR);
             }
-        }else { // 否则抛出异常用户已经存在
+        } else { // 否则抛出异常用户已经存在
             throw new CustomException(ResultCodeEnum.USER_EXIST_ERROR);
         }
     }
@@ -186,22 +185,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public Result sendCode(String email) {
         // 查询用户表中有没有这个email
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getEmail,email);
+        queryWrapper.eq(User::getEmail, email);
         User user = userMapper.selectOne(queryWrapper);
 
-        if (!ObjectUtil.isEmpty(user)){ // 如果不等于就要生成验证码了
+        if (!ObjectUtil.isEmpty(user)) { // 如果不等于就要生成验证码了
             LambdaQueryWrapper<Validation> validationQueryWrapper = new LambdaQueryWrapper<>();
 
             Date now = new Date();
             // 如果有已经存在没有过期验证码，提示不要继续发送
-            validationQueryWrapper.eq(Validation::getEmail,email);
+            validationQueryWrapper.eq(Validation::getEmail, email);
             validationQueryWrapper.gt(Validation::getTimeout, now);
             Validation dbValidation = validationMapper.selectOne(validationQueryWrapper);
             if (dbValidation != null) {
                 throw new CustomException(ResultCodeEnum.CODE_EXIST);
             }
             String code = RandomUtil.randomNumbers(4); // 随机一个 4位长度的验证码
-            SimpleMailMessage message=new SimpleMailMessage();
+            SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(from);  // 发送人
             message.setTo(email);
             message.setSentDate(now);
@@ -211,22 +210,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             // 发送成功之后，把验证码存到数据库
             // 如果不是第一次发送验证码 ，那就需要先删除原有的
             LambdaQueryWrapper<Validation> validationLambdaQueryWrapper = new LambdaQueryWrapper<>();
-            validationLambdaQueryWrapper.eq(Validation::getEmail,email);
+            validationLambdaQueryWrapper.eq(Validation::getEmail, email);
             validationMapper.delete(validationLambdaQueryWrapper);
             // 创建validation对象准备插入
-                Validation validation = new Validation();
-                validation.setCode(code);
-                validation.setEmail(email);
-                // 时间向后偏移2分钟
-                DateTime timeout = DateUtil.offsetMinute(now, 2);
-                validation.setTimeout(timeout);
-                int i = validationMapper.insert(validation);
-                if (i > 0){
-                    return Result.success();
+            Validation validation = new Validation();
+            validation.setCode(code);
+            validation.setEmail(email);
+            // 时间向后偏移2分钟
+            DateTime timeout = DateUtil.offsetMinute(now, 2);
+            validation.setTimeout(timeout);
+            int i = validationMapper.insert(validation);
+            if (i > 0) {
+                return Result.success();
             }
 
-        }
-        else {
+        } else {
             throw new CustomException(ResultCodeEnum.USER_NOT_EXIST_ERROR);
         }
         return Result.error();
@@ -236,14 +234,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public Account loginEmail(Account account) {
         // 根据邮箱查找这个用户的信息
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(User::getEmail,account.getEmail());
+        wrapper.eq(User::getEmail, account.getEmail());
         User user = userMapper.selectOne(wrapper);
         // 发送验证码的时候已经验证过了 用户肯定存在 接下来根据邮箱和验证码
         LambdaQueryWrapper<Validation> validationWrapper = new LambdaQueryWrapper<>();
-        validationWrapper.eq(Validation::getCode,account.getCode());
-        validationWrapper.eq(Validation::getEmail,account.getEmail());
+        validationWrapper.eq(Validation::getCode, account.getCode());
+        validationWrapper.eq(Validation::getEmail, account.getEmail());
         Validation validation = validationMapper.selectOne(validationWrapper);
-        if (validation != null){
+        if (validation != null) {
             // 查到了这条数据证明输入对了 那就要给初始化account信息了
 
             // 查询用户的角色名称 用selectById要在类的主键上加上注解@TableId
@@ -257,7 +255,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             account.setToken(token);
             account.setRoleName(role.getRoleName());
 
-        }else {
+        } else {
             // 验证码输入有误
             throw new CustomException(ResultCodeEnum.VALIDATION_ERROR);
         }
@@ -268,7 +266,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public Result queryAllTeacher() {
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getRoleId,Constants.TEACHER);
+        queryWrapper.eq(User::getRoleId, Constants.TEACHER);
         List<User> teacherList = userMapper.selectList(queryWrapper);
 
         return Result.success(teacherList);
@@ -287,20 +285,34 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public PageInfo<User> selectPage(User user, Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum, pageSize);
         List<User> userList = userMapper.selectAll(user);
-        // 过滤掉管理员
-        List<User> users = userList.stream().filter(
-                u -> !u.getRoleId().equals(Constants.ADMIN)
-        ).collect(Collectors.toList());
+//        // 过滤掉管理员
+//        List<User> users = userList.stream().filter(
+//                u -> !u.getRoleId().equals(Constants.ADMIN)
+//        ).collect(Collectors.toList());
 
-        return PageInfo.of(users);
+        return PageInfo.of(userList);
     }
 
 
     // 设置用户的状态
     @Override
     public Result setUserStatus(User user) {
+
+        User dbUser = userMapper.selectById(user.getUserId());
+        // 如果被停用的人是系主任
+        if (dbUser.getRoleId() == Constants.DEPARTMENT_MANAGER){
+            // 修改该系的系主任人选
+            if (user.getEnableStatus().equals(Constants.UNAVAILABLE)){
+                LambdaQueryWrapper<Department> wrapper = new LambdaQueryWrapper<>();
+                wrapper.eq(Department::getDepartmentManagerId,user.getUserId());
+                Department department = departmentMapper.selectOne(wrapper);
+                department.setDepartmentManagerId(null);
+                department.setDepartmentManagerName(null);
+                departmentMapper.updateById(department);
+            }
+        }
         int i = userMapper.updateById(user);
-        if (i > 0){
+        if (i > 0) {
             return Result.success();
         }
         throw new CustomException(ResultCodeEnum.SYSTEM_ERROR);
@@ -311,9 +323,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public Result addUser(User user) {
         // 查一查用户名有没有重复的
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getUsername,user.getUsername());
+        queryWrapper.eq(User::getUsername, user.getUsername());
         User dbUser = userMapper.selectOne(queryWrapper);
-        if (dbUser !=  null){
+        if (dbUser != null) {
             //说明存在相同用户
             throw new CustomException(ResultCodeEnum.USER_EXIST_ERROR);
         }
@@ -323,10 +335,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setRegistrationDate(new Date());
         // 添加
         int insert = userMapper.insert(user);
-        if (insert > 0){
+        if (insert > 0) {
             return Result.success();
         }
-        return Result.error("500","怎么回事？");
+        return Result.error("500", "怎么回事？");
     }
 
 
@@ -348,7 +360,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setPassword(account.getNewPassword());
         // 更改这个用户
         int i = userMapper.updateById(user);
-        if (i > 0){
+        if (i > 0) {
             return Result.success();
         }
         throw new CustomException(ResultCodeEnum.SYSTEM_ERROR);

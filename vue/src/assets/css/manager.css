@@ -17,8 +17,9 @@
 }
 
 .manager-header-left img {
-    width: 35px;
-    height: 35px;
+    width: 39px;
+    height: 39px;
+    border-radius: 50%;
 }
 
 .manager-header-left .title {

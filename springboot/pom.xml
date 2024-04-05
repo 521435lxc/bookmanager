@@ -95,6 +95,12 @@
             <artifactId>checker-qual</artifactId>
             <version>2.11.1</version>
         </dependency>
+        <!-- 接口文档-->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-openapi2-spring-boot-starter</artifactId>
+            <version>4.2.0</version>
+        </dependency>
     </dependencies>
 
     <build>

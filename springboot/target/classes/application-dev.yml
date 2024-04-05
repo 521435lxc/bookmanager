@@ -1,0 +1,53 @@
+server:
+  port: 9090
+# 数据库配置
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root   #你本地的数据库用户名
+    password: Sb123456 #你本地的数据库密码
+    url: jdbc:mysql://localhost:3306/bookmanager?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&serverTimezone=GMT%2b8&allowPublicKeyRetrieval=true
+  servlet:
+    multipart:
+      max-file-size: 100MB # 文件请求最大100m
+      max-request-size: 100MB
+  # jackson时间格式化
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm
+  mail:
+    #    protocol: smtps
+    protocol: smtp
+    # 配置 SMTP 服务器地址
+    host: smtp.qq.com
+    # 发送者邮箱
+    #    username: xqnode@163.com
+    username: 2218181052@qq.com
+    # 配置密码，注意不是真正的密码，而是刚刚申请到的授权码
+    password: apqwidfeodsdeagf
+    # 端口号465或587
+    #    port: 465
+    port: 587
+    # 默认的邮件编码为UTF-8
+    default-encoding: UTF-8
+# 配置mybatis实体和xml映射
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.example.entity
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true # 开启驼峰
+# 分页
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  params: count=countSql
+
+ip: localhost
+mybatis-plus:
+  global-config:
+    db-config:
+      # id生成策略 auto为数据库自增
+      id-type: auto
+

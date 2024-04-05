@@ -7,6 +7,8 @@
 
       <el-button type="info" plain style="margin-left: 10px" @click="load(1)">查询</el-button>
       <el-button type="warning" plain style="margin-left: 10px" @click="reset">重置</el-button>
+      <el-button v-if="user.roleName ==='DEANSOFFICE'"
+                 type="primary" plain @click="exportBatch">导出</el-button>
     </div>
 
     <div class="operation">
@@ -23,6 +25,16 @@
             @change="loadOrderStatus">
         </el-switch>
       </el-button>
+
+      <el-button v-if="user.roleName ==='DEANSOFFICE'">
+        <el-switch
+            style="margin-left: 10px"
+            v-model="approvedAvailable"
+            active-text="已通过"
+            @change="loadApproved">
+        </el-switch>
+      </el-button>
+
     </div>
 
     <div class="table">
@@ -98,6 +110,7 @@ export default {
   data() {
     return {
       available: false,
+      approvedAvailable: false,
       fromVisible: false,
       tableData: [],  // 所有的数据
       pageNum: 1,   // 当前的页码
@@ -113,6 +126,8 @@ export default {
       ],
       user: JSON.parse(localStorage.getItem('xm-user') || '{}'),
       orderFormDate: [], // 查询到的所有信息都存在
+      orderFormIds: [],
+      orderFormSelected: []
     }
   },
   created() {
@@ -190,13 +205,50 @@ export default {
     loadOrderStatus() {
       // 审批与未审批
       if(this.available === true){
-        this.applicationStatus = '1'
+        if (this.user.roleId === 3)
+        {
+          this.applicationStatus = '1'
+        }else if(this.user.roleId === 4){
+          this.applicationStatus = '2'
+        }
+
         this.load(1)
       }
       else {
         this.applicationStatus = null
         this.load(1)
       }
+    },
+    loadApproved() {
+      if (this.approvedAvailable === true){
+        this.applicationStatus = '3'
+        this.load(1)
+      }else {
+        this.applicationStatus = null
+        this.load(1)
+      }
+    },
+    exportBatch() { // 批量导出
+      // 是否选了数据
+      if (!this.orderFormIds.length){
+        this.$message.warning('请选择数据')
+        return
+      }
+      // 是否选对了数据
+      for (let i = 0; i < this.orderFormSelected.length; i++) {
+        if(this.orderFormSelected[i].applicationStatus === '4' || this.orderFormSelected[i].applicationStatus === '2'){
+          this.$message.warning('存在未通过的申请')
+          return;
+        }
+      }
+      // 提供下载
+      let orderFormIdList = this.orderFormIds.join(',');
+      window.open( this.$baseUrl + '/orderForm/exportBatch?token='
+          + this.user.token + '&orderFormIdList=' + orderFormIdList)
+    },
+    handleSelectionChange(rows) {   // 当前选中的所有的行数据
+      this.orderFormIds = rows.map(v => v.orderFormId)
+      this.orderFormSelected = rows.map(v => v)
     },
     reset() {
       this.textbookName = null

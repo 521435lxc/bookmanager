@@ -1,7 +1,7 @@
 <template>
   <div class="container">
-    <div style="width: 400px; padding: 30px; background-color: white; border-radius: 5px;">
-      <div style="text-align: center; font-size: 20px; margin-bottom: 10px; color: #333">光华教材征订系统</div>
+    <div style="width: 400px; padding: 30px; background-color: white; border-radius: 5px; opacity:0.9;">
+      <div style="text-align: center; font-size: 20px; margin-bottom: 10px; color: #333;">光华教材征订系统</div>
 
       <el-tabs v-model="activeName">
         <el-tab-pane label="账号密码登录" name="username">

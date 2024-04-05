@@ -24,7 +24,7 @@ public class Account {
     private String avatar;
 
     private String token;
-    // 真实姓名
+    // 真实姓名 deren
     private String realName;
 
     //电话

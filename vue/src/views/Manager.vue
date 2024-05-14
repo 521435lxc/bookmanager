@@ -95,7 +95,8 @@
             </el-menu-item>
           </el-submenu>
 
-          <el-submenu v-if="user.roleName === 'MANAGER'|| user.roleName ==='DEANSOFFICE' " index="order">
+<!--          <el-submenu v-if="user.roleName === 'MANAGER'|| user.roleName ==='DEANSOFFICE' " index="order">-->
+          <el-submenu v-if="user.roleName === 'x'|| user.roleName ==='x' " index="order">
             <template slot="title">
               <i class="el-icon-s-data"></i>
               <span>征订信息</span>

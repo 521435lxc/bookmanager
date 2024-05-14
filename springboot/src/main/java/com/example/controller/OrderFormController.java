@@ -19,6 +19,8 @@ import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -71,6 +73,7 @@ public class OrderFormController {
 
         return orderFormService.cancelOrderForm(orderForm);
     }
+    // 审批
     @PostMapping("/approveOrder")
     public Result approveOrder(@RequestBody OrderForm orderForm,@RequestParam Integer roleId){
         return  orderFormService.approveOrder(orderForm,roleId);
@@ -89,12 +92,14 @@ public class OrderFormController {
             OrderFormVoList = BeanCopyUtils.copyBeanList(list, OrderFormVo.class);
             OrderFormVoList.stream().forEach(item->item.setApplicationStatus("通过"));
         }
+
+        // 稍微设置一下时间
+        String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMM"));
         writer.write(OrderFormVoList, true);
-
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
-        response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode("征订单", "UTF-8") + ".xlsx");
-        ServletOutputStream outputStream = response.getOutputStream();
+        response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode("征订单_" + now, "UTF-8") + ".xlsx");
 
+        ServletOutputStream outputStream = response.getOutputStream();
         writer.flush(outputStream, true);
         writer.close();
         outputStream.flush();

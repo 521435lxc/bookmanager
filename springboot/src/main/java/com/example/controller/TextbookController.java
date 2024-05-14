@@ -19,16 +19,13 @@ import java.util.List;
 
 /**
  * (Textbook)表控制层
- *
- * @author makejava
+  * @author lxc
  * @since 2024-01-19 21:40:43
  */
 @RestController
 @RequestMapping("/textbook")
 public class TextbookController {
-    /**
-     * 服务对象
-     */
+
     @Resource
     private TextbookService textbookService;
 
@@ -90,8 +87,9 @@ public class TextbookController {
         try {
             textbookService.saveBatch(textbookList);
         }catch (Exception e){
+            /// 返回异常信息
             e.printStackTrace();
-            return Result.error(ResultCodeEnum.SYSTEM_ERROR);
+            return Result.error(ResultCodeEnum.TEXTBOOK_EXIST);
         }
         return Result.success();
     }

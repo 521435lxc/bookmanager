@@ -73,7 +73,7 @@ public class TextbookServiceImpl extends ServiceImpl<TextbookMapper, Textbook> i
             }
             else{
                 // 保存失败
-                throw  new CustomException(ResultCodeEnum.SYSTEM_ERROR);
+                throw  new CustomException(ResultCodeEnum.TEXTBOOK_EXIST);
             }
         }
         else {
